@@ -16,6 +16,8 @@ dependencies:
   - snakemake-minimal>=7.30
   - boto3>=1.28
   - python-dotenv>=1.0
+  - requests>=2
+  - pytest>=7
   - pip
   - pip:
       - pysentiment2>=0.1.1
