@@ -1,0 +1,450 @@
+# Package inventory from the original run environment.
+# Local build locations are redacted. Use environment.yml for setup.
+aext-assistant @ <local build>
+aext-assistant-server @ <local build>
+aext-core @ <local build>
+aext-core-server @ <local build>
+aext-panels @ <local build>
+aext-panels-server @ <local build>
+aext-project-filebrowser-server @ <local build>
+aext-share-notebook @ <local build>
+aext-share-notebook-server @ <local build>
+aext-shared @ <local build>
+aext-toolbox @ <local build>
+aext_environments_server @ <local build>
+affine==2.4.0
+aiobotocore==2.26.0
+aiohappyeyeballs==2.6.1
+aiohttp==3.13.5
+aioitertools @ <local build>
+aiosignal==1.4.0
+alabaster @ <local build>
+alembic @ <local build>
+altair @ <local build>
+anaconda-anon-usage @ <local build>
+anaconda-auth @ <local build>
+anaconda-catalogs @ <local build>
+anaconda-cli-base @ <local build>
+anaconda-client @ <local build>
+anaconda-navigator @ <local build>
+anaconda-project @ <local build>
+annotated-types @ <local build>
+anyio @ <local build>
+appdirs==1.4.4
+archspec @ <local build>
+argon2-cffi @ <local build>
+argon2-cffi-bindings @ <local build>
+arrow @ <local build>
+asgiref==3.11.1
+astroid @ <local build>
+astropy @ <local build>
+astropy-iers-data @ <local build>
+asttokens @ <local build>
+async-generator==1.10
+async-lru @ <local build>
+asyncssh @ <local build>
+atomicwrites==1.4.0
+attrs @ <local build>
+Automat @ <local build>
+autopep8 @ <local build>
+awscli==1.45.14
+babel @ <local build>
+bcrypt @ <local build>
+beautifulsoup4 @ <local build>
+binaryornot @ <local build>
+black @ <local build>
+bleach @ <local build>
+blinker @ <local build>
+bokeh @ <local build>
+boltons @ <local build>
+boto==2.49.0
+boto3==1.43.14
+botocore==1.43.14
+Bottleneck @ <local build>
+Brotli @ <local build>
+cachetools @ <local build>
+certifi @ <local build>
+cffi @ <local build>
+chardet @ <local build>
+charset-normalizer @ <local build>
+click @ <local build>
+cligj==0.7.2
+cloudpickle @ <local build>
+colorama @ <local build>
+colorcet @ <local build>
+comm @ <local build>
+conda @ <local build>
+conda-anaconda-telemetry @ <local build>
+conda-anaconda-tos @ <local build>
+conda-build @ <local build>
+conda-content-trust @ <local build>
+conda-libmamba-solver @ <local build>
+conda-pack @ <local build>
+conda-package-handling @ <local build>
+conda-repo-cli @ <local build>
+conda-token @ <local build>
+conda_index @ <local build>
+conda_package_streaming @ <local build>
+constantly @ <local build>
+contourpy @ <local build>
+cookiecutter @ <local build>
+cryptography @ <local build>
+cssselect @ <local build>
+cuda-pathfinder==1.5.2
+cupy-cuda12x==14.0.1
+curl_cffi==0.13.0
+cycler @ <local build>
+cytoolz @ <local build>
+dask @ <local build>
+dask-expr @ <local build>
+dataclasses-json==0.6.7
+datashader @ <local build>
+debugpy @ <local build>
+decorator @ <local build>
+defusedxml @ <local build>
+Deprecated @ <local build>
+diff-match-patch @ <local build>
+dill @ <local build>
+distributed @ <local build>
+distro @ <local build>
+Django==6.0.2
+docstring-to-markdown @ <local build>
+docutils==0.19
+duckduckgo_search==6.3.5
+et_xmlfile @ <local build>
+evalidate @ <local build>
+executing @ <local build>
+fabric==3.2.3
+fastjsonschema @ <local build>
+filelock @ <local build>
+flake8 @ <local build>
+Flask @ <local build>
+fonttools @ <local build>
+frozendict @ <local build>
+frozenlist @ <local build>
+fsspec @ <local build>
+geographiclib==2.1
+geopy==2.4.1
+gitdb @ <local build>
+GitPython @ <local build>
+gmpy2 @ <local build>
+greenlet @ <local build>
+h11 @ <local build>
+h5py @ <local build>
+HeapDict @ <local build>
+holoviews @ <local build>
+html5lib @ <local build>
+httpcore @ <local build>
+httpx @ <local build>
+httpx-sse==0.4.1
+hvplot @ <local build>
+hyperlink @ <local build>
+idna @ <local build>
+imageio @ <local build>
+imagesize @ <local build>
+imbalanced-learn @ <local build>
+importlib_metadata @ <local build>
+incremental @ <local build>
+inflection @ <local build>
+iniconfig @ <local build>
+intake @ <local build>
+intervaltree @ <local build>
+invoke==2.2.1
+ipykernel @ <local build>
+ipython @ <local build>
+ipywidgets @ <local build>
+isort @ <local build>
+itemadapter @ <local build>
+itemloaders @ <local build>
+itsdangerous @ <local build>
+jaraco.classes @ <local build>
+jaraco.context @ <local build>
+jaraco.functools @ <local build>
+jedi @ <local build>
+jellyfish @ <local build>
+Jinja2 @ <local build>
+jinja2-time @ <local build>
+jmespath @ <local build>
+joblib @ <local build>
+json5 @ <local build>
+jsonpatch @ <local build>
+jsonpointer==2.1
+jsonschema @ <local build>
+jsonschema-specifications @ <local build>
+jupyter @ <local build>
+jupyter-console @ <local build>
+jupyter-events @ <local build>
+jupyter-lsp @ <local build>
+jupyter_client @ <local build>
+jupyter_core @ <local build>
+jupyter_server @ <local build>
+jupyter_server_terminals @ <local build>
+jupyterlab @ <local build>
+jupyterlab_pygments @ <local build>
+jupyterlab_server @ <local build>
+jupyterlab_widgets @ <local build>
+keyring @ <local build>
+kiwisolver @ <local build>
+langchain==0.3.27
+langchain-community==0.3.17
+langchain-core==0.3.75
+langchain-text-splitters==0.3.11
+langsmith==0.3.45
+lazy_loader @ <local build>
+lckr_jupyterlab_variableinspector @ <local build>
+libarchive-c @ <local build>
+libmambapy @ <local build>
+lief @ <local build>
+linkify-it-py @ <local build>
+llvmlite @ <local build>
+lmdb @ <local build>
+locket @ <local build>
+lxml==5.3.0
+lz4 @ <local build>
+Mako @ <local build>
+Markdown @ <local build>
+markdown-it-py @ <local build>
+MarkupSafe @ <local build>
+marshmallow==3.26.1
+matplotlib==3.10.0
+matplotlib-inline @ <local build>
+mccabe @ <local build>
+mdit-py-plugins @ <local build>
+mdurl @ <local build>
+menuinst @ <local build>
+mistune @ <local build>
+mkl-service==2.4.0
+mkl_fft @ <local build>
+mkl_random @ <local build>
+more-itertools @ <local build>
+mpmath @ <local build>
+msgpack @ <local build>
+multidict @ <local build>
+multipledispatch @ <local build>
+multitasking==0.0.12
+mypy @ <local build>
+mypy_extensions @ <local build>
+narwhals @ <local build>
+navigator-updater @ <local build>
+nb_conda_kernels @ <local build>
+nbclient @ <local build>
+nbconvert @ <local build>
+nbformat @ <local build>
+nest_asyncio @ <local build>
+networkx @ <local build>
+nltk @ <local build>
+notebook @ <local build>
+notebook_shim @ <local build>
+numba @ <local build>
+numexpr @ <local build>
+numpy @ <local build>
+numpydoc @ <local build>
+ollama==0.4.7
+openpyxl @ <local build>
+orjson==3.11.3
+outcome==1.3.0.post0
+overrides @ <local build>
+packaging @ <local build>
+panda==0.3.1
+pandas @ <local build>
+pandocfilters @ <local build>
+panel @ <local build>
+param @ <local build>
+paramiko==4.0.0
+parsel @ <local build>
+parso @ <local build>
+partd @ <local build>
+pathspec @ <local build>
+patsy @ <local build>
+peewee==3.19.0
+pexpect @ <local build>
+pickleshare @ <local build>
+pillow @ <local build>
+pkce @ <local build>
+pkginfo @ <local build>
+platformdirs @ <local build>
+plotly @ <local build>
+pluggy @ <local build>
+ply @ <local build>
+poyo @ <local build>
+prettytable==3.17.0
+primp==0.15.0
+prometheus_client @ <local build>
+prompt_toolkit @ <local build>
+propcache @ <local build>
+Protego @ <local build>
+protobuf @ <local build>
+psutil @ <local build>
+ptyprocess @ <local build>
+pure-eval @ <local build>
+py-cpuinfo @ <local build>
+pyarrow @ <local build>
+pyasn1 @ <local build>
+pyasn1-modules==0.2.8
+pycodestyle @ <local build>
+pycosat @ <local build>
+pycparser @ <local build>
+pyct @ <local build>
+pycurl @ <local build>
+pydantic @ <local build>
+pydantic-settings @ <local build>
+pydantic_core @ <local build>
+PyDispatcher @ <local build>
+pydocstyle @ <local build>
+pyerfa @ <local build>
+pyflakes @ <local build>
+PyGithub @ <local build>
+Pygments @ <local build>
+PyJWT @ <local build>
+pylint @ <local build>
+pylint-venv @ <local build>
+pyls-spyder==0.4.0
+PyNaCl @ <local build>
+pyodbc @ <local build>
+pyOpenSSL @ <local build>
+pyparsing @ <local build>
+PyQt5==5.15.10
+PyQt5_sip @ <local build>
+PyQtWebEngine==5.15.6
+PySocks @ <local build>
+pytest @ <local build>
+python-dateutil @ <local build>
+python-dotenv @ <local build>
+python-json-logger @ <local build>
+python-lsp-black @ <local build>
+python-lsp-jsonrpc @ <local build>
+python-lsp-server @ <local build>
+python-slugify @ <local build>
+pytoolconfig @ <local build>
+pytz @ <local build>
+pyuca @ <local build>
+pyviz_comms @ <local build>
+PyWavelets @ <local build>
+pywin32==308
+pywin32-ctypes @ <local build>
+pywinpty @ <local build>
+PyYAML @ <local build>
+pyzmq @ <local build>
+QDarkStyle @ <local build>
+qstylizer @ <local build>
+QtAwesome @ <local build>
+qtconsole @ <local build>
+QtPy @ <local build>
+queuelib @ <local build>
+rasterio==1.5.0
+readchar @ <local build>
+referencing @ <local build>
+regex @ <local build>
+requests @ <local build>
+requests-file @ <local build>
+requests-toolbelt @ <local build>
+rfc3339_validator @ <local build>
+rfc3986_validator @ <local build>
+rich @ <local build>
+roman-numerals-py @ <local build>
+rope @ <local build>
+rpds-py @ <local build>
+rsa==4.7.2
+Rtree @ <local build>
+ruamel.yaml @ <local build>
+ruamel.yaml.clib @ <local build>
+ruamel_yaml_conda @ <local build>
+s3fs @ <local build>
+s3transfer==0.17.0
+scikit-image @ <local build>
+scikit-learn @ <local build>
+scipy @ <local build>
+Scrapy @ <local build>
+seaborn @ <local build>
+selenium==4.40.0
+semver @ <local build>
+Send2Trash @ <local build>
+sentry-sdk @ <local build>
+service-identity @ <local build>
+setuptools==82.0.1
+shellingham @ <local build>
+sip @ <local build>
+six @ <local build>
+sklearn-compat @ <local build>
+smmap @ <local build>
+sniffio @ <local build>
+snowballstemmer @ <local build>
+sortedcontainers @ <local build>
+soupsieve @ <local build>
+Sphinx @ <local build>
+sphinxcontrib-applehelp @ <local build>
+sphinxcontrib-devhelp @ <local build>
+sphinxcontrib-htmlhelp @ <local build>
+sphinxcontrib-jsmath @ <local build>
+sphinxcontrib-qthelp @ <local build>
+sphinxcontrib-serializinghtml @ <local build>
+spyder @ <local build>
+spyder-kernels @ <local build>
+SQLAlchemy @ <local build>
+sqlparse==0.5.5
+stack-data @ <local build>
+statsmodels @ <local build>
+streamlit @ <local build>
+superqt @ <local build>
+sympy @ <local build>
+tables @ <local build>
+tabulate @ <local build>
+tblib @ <local build>
+tenacity @ <local build>
+terminado @ <local build>
+text-unidecode @ <local build>
+textdistance @ <local build>
+threadpoolctl @ <local build>
+three-merge @ <local build>
+tifffile @ <local build>
+tinycss2 @ <local build>
+tldextract @ <local build>
+tokenizer==3.6.2
+toml @ <local build>
+tomli @ <local build>
+tomlkit @ <local build>
+toolz @ <local build>
+tornado @ <local build>
+tqdm @ <local build>
+traitlets @ <local build>
+trio==0.32.0
+trio-typing==0.10.0
+trio-websocket==0.12.2
+truststore @ <local build>
+Twisted @ <local build>
+twisted-iocpsupport @ <local build>
+typer @ <local build>
+types-certifi==2021.10.8.3
+types-urllib3==1.26.25.14
+typing-inspect==0.9.0
+typing_extensions==4.15.0
+tzdata @ <local build>
+uc-micro-py @ <local build>
+ujson @ <local build>
+Unidecode @ <local build>
+urllib3==2.6.3
+w3lib @ <local build>
+watchdog @ <local build>
+wcwidth @ <local build>
+webdriver-manager==4.0.2
+webencodings @ <local build>
+websocket-client @ <local build>
+websockets==16.0
+Werkzeug @ <local build>
+whatthepatch @ <local build>
+wheel==0.45.1
+widgetsnbextension @ <local build>
+win_inet_pton @ <local build>
+wordcloud==1.9.6
+wrapt @ <local build>
+wsproto==1.3.2
+xarray @ <local build>
+xlwings @ <local build>
+xyzservices @ <local build>
+yapf @ <local build>
+yarl @ <local build>
+yfinance==1.1.0
+zict @ <local build>
+zipp @ <local build>
+zope.interface @ <local build>
+zstandard @ <local build>

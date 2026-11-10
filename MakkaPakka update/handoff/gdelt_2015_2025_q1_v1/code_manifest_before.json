@@ -1,0 +1,12 @@
+{
+  "MakkaPakka update\\Jerry_GDELT_2015_2025_workflow.ipynb": "2e8eb37a6d91e304a74642f5b31512cbecc3463e6c57af11bf0e4c315fe02a04",
+  "MakkaPakka update\\analysis_protocol_extension.md": "7c71c0a5749054c809857aa29c636372dc2c1493fcc51606691506d92030ac1e",
+  "MakkaPakka update\\scripts\\analysis\\00_build_panel.py": "d03a14caef9f97cf8a14d339a4f149dd2a83ae4764e743ba663dc48a6de4f46f",
+  "MakkaPakka update\\scripts\\analysis\\12_main_regression.py": "5a731be3948edc28dd7aadef757d538336ecf90a1fe1797ed7e518be14060784",
+  "MakkaPakka update\\scripts\\analysis\\13_identification.py": "15361f3ec703865601c0619486ee12652a975cd72bd62a30382268b7dbe4d852",
+  "MakkaPakka update\\scripts\\similarity\\11_spark_similarity.py": "4ef294b8f6819958384df11061dc119e4c08ce2effef5a8fce816f8795a91a6d",
+  "analysis\\12_lead_lag_volatility.py": "e106824d03f69cdc5de27edcd83552163b20e11598cb2815a36103870382b978",
+  "ingestion\\06_ingest_gdelt.py": "a62ff12cad121b93e0e2cb7bcdd5ce37a4b24157f8c98e84a449ab1a9157df27",
+  "spark\\08_spark_preprocess_tfidf.py": "006e87f8a175b0ee894acab4d5cdbe7e7cb1b9d72c7c7354a364b407414f76f4",
+  "spark\\09_spark_meeting_windows.py": "a2b39ffc6469f6856a76bd56bf22060279a52768452416fd0f2b535be6565c57"
+}
