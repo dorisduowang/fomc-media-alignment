@@ -1,0 +1,9 @@
+{
+  "created_utc": "2026-10-18T21:22:35.153923+00:00",
+  "master_sha256": "0fb8547a6210772b2673c09b05bc509057f14e44e780c9cff6f043eac4dbda65",
+  "master_url": "https://data.gdeltproject.org/gdeltv2/masterfilelist.txt",
+  "pad_days": 7,
+  "plan_sha256": "291efe3308eaa5117c35cb73b6f13ab70081e22f2d0adaf66a93203a6f1976c8",
+  "planned_gib": 864.0410159258172,
+  "selected_shards": 122118
+}

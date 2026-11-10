@@ -1,0 +1,4 @@
+task,impl,seconds,speedup
+sentiment-5M-tokens,python,0.24069208302535117,1.0
+sentiment-5M-tokens,numpy,0.1229563329834491,1.95754116266423
+sentiment-5M-tokens,numba,0.008968874928541481,26.83637412083887

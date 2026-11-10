@@ -1,0 +1,59 @@
+# Credentials and local runtime state
+.env
+.env.*
+!.env.example
+.aws/
+*.pem
+*.key
+.DS_Store
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+.sparkStaging/
+spark-warehouse/
+metastore_db/
+.snakemake/
+
+# Inputs and bulk exports. Allow the specific aggregate artifacts below.
+data/
+source_data/
+raw/
+**/data_reference/market/
+*.csv
+*.parquet
+*.xlsx
+*.jsonl
+*.json
+!ingestion/gdelt_filter_rules_v1.json
+!MakkaPakka update/handoff/*/gdelt_download_plan_metadata.json
+!MakkaPakka update/handoff/*/code_manifest_before.json
+*.zip
+*.gkg
+*.gkg.csv
+*.log
+!analysis/benchmarks.csv
+!analysis/summary.csv
+!analysis/cosine.parquet
+!analysis/per_meeting.parquet
+!data_reference/cosine.parquet
+!data_reference/per_meeting.parquet
+!MakkaPakka update/data_reference/cosine.parquet
+!MakkaPakka update/data_reference/per_meeting.parquet
+!MakkaPakka update/data_reference/meetings_all88.csv
+!results/tables/*.csv
+!MakkaPakka update/results/tables/*.csv
+!MakkaPakka update/handoff/*/meeting_archive_coverage.csv
+!MakkaPakka update/handoff/*/volatility_window_audit.csv
+!MakkaPakka update/handoff/*/gdelt_pilot_plan.csv
+
+# Local TeX build products
+*.aux
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.out
+*.synctex.gz
