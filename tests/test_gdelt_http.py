@@ -175,6 +175,26 @@ def test_bad_zip_is_failure_not_empty(monkeypatch):
     assert got['status'] == 'failed' and got['md5_ok']
 
 
+def test_archive_keeps_valid_rows_and_audits_malformed_lines(monkeypatch, tmp_path):
+    row = gkg_row()
+    row[13] = '"Federal Reserve"'
+    lines = ['\t'.join(row).encode(), b'invalid utf8 \xff', b'wrong field count']
+    archive = io.BytesIO()
+    with zipfile.ZipFile(archive, 'w') as zf:
+        zf.writestr('20250101120000.gkg.csv', b'\n'.join(lines) + b'\n')
+    payload = archive.getvalue()
+    mock_download(monkeypatch, payload)
+    shard = shard_for(payload)
+    _, rules, rh = setup()
+    lake = g.LocalLake(tmp_path)
+    got = g.process_shard(shard, lake, None, 'raw/gdelt', 'manifests', rules, rh)
+    assert got['status'] == 'success'
+    assert got['parsed_rows'] == 1 and got['malformed_rows'] == 2
+    assert g.checkpoint_valid(lake, None, 'manifests', shard, rh) == got
+    record = json.loads((tmp_path / got['output_keys']['broad_macro']).read_text())
+    assert record['organizations'] == ['"Federal Reserve"']
+
+
 def test_network_failure_is_failure_not_empty(monkeypatch):
     s3, rules, rh = setup()
     payload = zipped_rows([gkg_row()])

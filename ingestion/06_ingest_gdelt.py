@@ -18,6 +18,7 @@ import io
 import json
 import os
 import re
+import shutil
 import sys
 import tempfile
 import time
@@ -43,7 +44,49 @@ EASTERN = ZoneInfo("America/New_York")
 STAMP_RE = re.compile(r"^\d{14}$")
 MD5_RE = re.compile(r"^[0-9a-fA-F]{32}$")
 ARCHIVE_RE = re.compile(r"^/gdeltv2/(\d{14})\.gkg\.csv\.zip$", re.I)
-RUN_SCHEMA_VERSION = "gkg21_https_manifest_v1"
+RUN_SCHEMA_VERSION = "gkg21_https_manifest_v2"
+
+
+class LocalLake:
+    """Use the same shard keys and checkpoints for a local pilot."""
+
+    def __init__(self, root):
+        self.root = Path(root).resolve()
+
+    def _path(self, key):
+        path = (self.root / key).resolve()
+        if not path.is_relative_to(self.root):
+            raise ValueError(f"Key is outside the local lake: {key}")
+        return path
+
+    def _write(self, key, source):
+        path = self._path(key)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(dir=path.parent, prefix=".", delete=False) as temp:
+            temp_path = Path(temp.name)
+        try:
+            with temp_path.open("wb") as handle:
+                shutil.copyfileobj(source, handle)
+            temp_path.replace(path)
+        finally:
+            temp_path.unlink(missing_ok=True)
+
+    def put_object(self, *, Bucket, Key, Body, ContentType):
+        self._write(Key, io.BytesIO(Body))
+
+    def upload_file(self, filename, bucket, key, ExtraArgs):
+        with open(filename, "rb") as source:
+            self._write(key, source)
+
+    def get_object(self, *, Bucket, Key):
+        try:
+            return {"Body": io.BytesIO(self._path(Key).read_bytes())}
+        except FileNotFoundError as exc:
+            raise ClientError({"Error": {"Code": "NoSuchKey"}}, "GetObject") from exc
+
+    def head_object(self, *, Bucket, Key):
+        if not self._path(Key).is_file():
+            raise ClientError({"Error": {"Code": "NoSuchKey"}}, "HeadObject")
 
 
 def parse_tone(tone_str):
@@ -258,7 +301,7 @@ def process_shard(shard, s3, bucket, out_prefix, manifest_prefix,
                     source_md5=shard["md5"], compressed_bytes=shard["compressed_bytes"],
                     filter_version=rules_hash, rules_label=rules["version"],
                     schema_version=RUN_SCHEMA_VERSION, status="failed", md5_ok=False,
-                    parsed_rows=0, matched_rows=0, direct_rows=0, broad_rows=0,
+                    parsed_rows=0, malformed_rows=0, matched_rows=0, direct_rows=0, broad_rows=0,
                     duplicate_doc_ids=0, duplicate_urls=0, output_keys={})
     try:
         with tempfile.TemporaryDirectory(prefix=f"gdelt_{stamp}_") as tmp:
@@ -275,13 +318,19 @@ def process_shard(shard, s3, bucket, out_prefix, manifest_prefix,
                 data_files = [name for name in zf.namelist() if name.lower().endswith(".gkg.csv")]
                 if len(data_files) != 1:
                     raise ValueError(f"Expected one GKG CSV member, found {data_files!r}")
-                with zf.open(data_files[0], "r") as raw, \
-                        io.TextIOWrapper(raw, encoding="utf-8-sig", errors="strict", newline="") as source:
-                    for row in csv.reader(source, delimiter="\t"):
-                        if not row:
+                with zf.open(data_files[0], "r") as raw:
+                    for line in raw:
+                        line = line.rstrip(b"\r\n")
+                        if not line:
+                            continue
+                        try:
+                            # GKG fields are tab-separated. Literal quotes are data.
+                            row = line.decode("utf-8-sig").split("\t")
+                            doc = record_from_row(row, shard, rules, rules_hash)
+                        except (UnicodeDecodeError, ValueError):
+                            manifest["malformed_rows"] += 1
                             continue
                         manifest["parsed_rows"] += 1
-                        doc = record_from_row(row, shard, rules, rules_hash)
                         if doc is None:
                             continue
                         if doc["doc_id"] in seen_ids:
@@ -302,7 +351,7 @@ def process_shard(shard, s3, bucket, out_prefix, manifest_prefix,
                             direct_out.write(encoded)
                             manifest["direct_rows"] += 1
             if manifest["parsed_rows"] == 0:
-                raise ValueError("GKG archive contains zero parsed rows")
+                raise ValueError("GKG archive contains zero valid rows")
             for corpus, count, path in (("broad_macro", manifest["broad_rows"], broad_path),
                                         ("direct_fed", manifest["direct_rows"], direct_path)):
                 if count:
@@ -372,6 +421,7 @@ def write_run_manifest(s3, bucket, manifest_prefix, plan):
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Verified and restartable GDELT GKG ingest")
     parser.add_argument("--bucket", default=os.environ.get("MP_RUN_BUCKET") or os.environ.get("BUCKET"))
+    parser.add_argument("--local-root", type=Path, help="Write shard and manifest keys under this local directory")
     parser.add_argument("--plan", required=True, help="Notebook-generated official HTTPS plan CSV")
     parser.add_argument("--out-prefix", required=True)
     parser.add_argument("--manifest-prefix", required=True)
@@ -381,8 +431,8 @@ def main(argv=None):
     parser.add_argument("--rules", default=str(Path(__file__).with_name("gdelt_filter_rules_v1.json")))
     parser.add_argument("--attempts", type=int, default=3)
     args = parser.parse_args(argv)
-    if not args.bucket:
-        parser.error("--bucket or MP_RUN_BUCKET is required")
+    if not (args.bucket or args.local_root):
+        parser.error("--bucket, MP_RUN_BUCKET, or --local-root is required")
     if args.workers < 1 or args.max_shards is not None and args.max_shards < 1:
         parser.error("--workers and --max-shards must be positive")
     out_prefix = normalized_prefix(args.out_prefix)
@@ -391,7 +441,7 @@ def main(argv=None):
         parser.error("Output and manifest prefixes must be separate")
     plan = validated_plan(args.plan)
     rules, rules_hash = load_rules(args.rules)
-    s3 = boto3.client("s3")
+    s3 = LocalLake(args.local_root) if args.local_root else boto3.client("s3")
     print(f"Plan: {len(plan)} shards; rule set {rules['version']} SHA256 {rules_hash}", flush=True)
     pending = []
     skipped = 0
@@ -417,7 +467,8 @@ def main(argv=None):
     all_rows, key = write_run_manifest(s3, args.bucket, manifest_prefix, plan)
     counts = {status: sum(x["status"] == status for x in all_rows)
               for status in ("success", "empty", "failed")}
-    print(f"Manifest: s3://{args.bucket}/{key}; recorded={len(all_rows)}/{len(plan)}, statuses={counts}")
+    manifest_path = s3.root / key if args.local_root else f"s3://{args.bucket}/{key}"
+    print(f"Manifest: {manifest_path}; recorded={len(all_rows)}/{len(plan)}, statuses={counts}")
     if any(x["status"] == "failed" for x in results):
         return 2
     return 0

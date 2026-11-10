@@ -18,10 +18,15 @@ Utilizing course contents:
 - Week 7: NGram extraction
 
 """
+import argparse
+import hashlib
 import sys
+from datetime import date
+from pathlib import Path
+
 from pyspark.sql import SparkSession, functions as F, types as T
 from pyspark.ml import Pipeline
-from pyspark.ml.feature import RegexTokenizer, StopWordsRemover, NGram, HashingTF, IDF
+from pyspark.ml.feature import RegexTokenizer, StopWordsRemover, NGram, HashingTF, IDF, Normalizer
 
 # Unified schema — only the 5 fields every source shares
 SCHEMA_DOC = T.StructType([
@@ -30,6 +35,24 @@ SCHEMA_DOC = T.StructType([
     T.StructField("doc_date", T.StringType(), True),
     T.StructField("text",     T.StringType(), True),
     T.StructField("url",      T.StringType(), True),
+])
+
+GKG_TONE_SCHEMA = T.StructType([
+    T.StructField(name, T.DoubleType()) for name in (
+        "tone", "positive_score", "negative_score", "polarity",
+        "activity_ref_density", "self_group_ref_density", "word_count",
+    )
+])
+GKG_TONE_SCHEMA.add("raw_tone", T.StringType())
+VERSIONED_SCHEMA = T.StructType([
+    *SCHEMA_DOC.fields,
+    T.StructField("metadata_text", T.StringType()),
+    T.StructField("source_domain", T.StringType()),
+    T.StructField("representation_type", T.StringType()),
+    T.StructField("filter_version", T.StringType()),
+    T.StructField("direct_fed", T.BooleanType()),
+    T.StructField("broad_macro", T.BooleanType()),
+    T.StructField("gkg_tone", GKG_TONE_SCHEMA),
 ])
 
 
@@ -132,7 +155,7 @@ def read_all_sources(spark, bucket):
     )
 
 # ML Pipeline: tokenise → strip stopwords → bigram → TF → IDF
-def build_text_pipeline():
+def build_text_pipeline(normalize=False):
     """
     5-stage pipeline (from pyspark_ml.ipynb course notebook):
       RegexTokenizer → StopWordsRemover → NGram → HashingTF → IDF
@@ -156,9 +179,96 @@ def build_text_pipeline():
         inputCol="tokens", outputCol="rawFeatures",
         numFeatures=1 << 18,   # 262,144 — matches 11_cupy_similarity.py
     )
-    idf    = IDF(inputCol="rawFeatures", outputCol="features",
-                 minDocFreq=5)
-    return Pipeline(stages=[tokenizer, stop, bigram, tf, idf])
+    idf = IDF(inputCol="rawFeatures", outputCol="tfidf_raw" if normalize else "features",
+              minDocFreq=5)
+    stages = [tokenizer, stop, bigram, tf, idf]
+    if normalize:
+        stop.setLocale("en_US")
+        stages.append(Normalizer(inputCol="tfidf_raw", outputCol="features", p=2.0))
+    return Pipeline(stages=stages)
+
+
+def read_versioned_sources(spark, args):
+    # The broad partition already includes the direct records. Reading both would duplicate them.
+    gdelt = (spark.read.schema(VERSIONED_SCHEMA)
+             .option("recursiveFileLookup", "true").option("pathGlobFilter", "*.jsonl")
+             .json(f"{args.gdelt_path.rstrip('/')}/broad_macro"))
+    invalid = (F.col("source").isNull() | (F.col("source") != "gdelt")
+               | F.col("metadata_text").isNull() | F.col("source_domain").isNull()
+               | F.col("representation_type").isNull() | F.col("filter_version").isNull()
+               | F.col("direct_fed").isNull() | F.col("broad_macro").isNull()
+               | ~F.col("broad_macro"))
+    if gdelt.filter(invalid).limit(1).count():
+        raise ValueError("GDELT input must be the versioned broad_macro partition")
+    versions = gdelt.select("filter_version").distinct().take(2)
+    if len(versions) != 1:
+        raise ValueError("GDELT input must contain records from one filter version")
+
+    docs = gdelt.withColumn("text", F.col("metadata_text"))
+    for source, path, domain, representation in (
+        ("fomc", args.fomc_path, "federalreserve.gov", "fomc_minutes"),
+        ("nyt", args.nyt_path, "nytimes.com", "nyt_api_text"),
+        ("guardian", args.guardian_path, "theguardian.com", "guardian_article_body"),
+    ):
+        if path:
+            other = (spark.read.schema(SCHEMA_DOC).json(path)
+                     .withColumn("source", F.lit(source))
+                     .withColumn("source_domain", F.lit(domain))
+                     .withColumn("representation_type", F.lit(representation)))
+            docs = docs.unionByName(other, allowMissingColumns=True)
+
+    docs = docs.withColumn("doc_date", F.to_date("doc_date"))
+    if docs.filter(F.col("doc_date").isNull() | F.col("doc_id").isNull()).limit(1).count():
+        raise ValueError("Every document needs a valid date and ID")
+    docs = docs.filter(F.length(F.trim("text")) > 0).dropDuplicates(["source", "doc_id"])
+    return docs, versions[0].filter_version
+
+
+def versioned_main():
+    parser = argparse.ArgumentParser(description="Fit discovery TF-IDF and transform a versioned run")
+    parser.add_argument("--fomc-path", required=True)
+    parser.add_argument("--gdelt-path", required=True, help="Ingestion output root containing broad_macro")
+    parser.add_argument("--nyt-path")
+    parser.add_argument("--guardian-path")
+    parser.add_argument("--tokens-out")
+    parser.add_argument("--tfidf-out", required=True)
+    parser.add_argument("--model-out", required=True)
+    parser.add_argument("--fit-start", type=date.fromisoformat, default=date(2015, 3, 15))
+    parser.add_argument("--fit-cutoff", type=date.fromisoformat, required=True)
+    args = parser.parse_args()
+    if args.fit_start > args.fit_cutoff:
+        parser.error("--fit-start must be on or before --fit-cutoff")
+
+    spark = SparkSession.builder.appName("fomc_versioned_tfidf").getOrCreate()
+    spark.sparkContext.setLogLevel("WARN")
+    try:
+        docs, filter_version = read_versioned_sources(spark, args)
+        docs = docs.cache()
+        discovery = docs.filter(
+            F.col("doc_date").between(args.fit_start, args.fit_cutoff)
+            & ((F.col("source") == "fomc") | ((F.col("source") == "gdelt") & F.col("direct_fed")))
+        )
+        fit_counts = {row.source: row["count"] for row in discovery.groupBy("source").count().collect()}
+        if set(fit_counts) != {"fomc", "gdelt"}:
+            raise ValueError("Discovery fit requires both FOMC minutes and direct-Fed GDELT records")
+        model = build_text_pipeline(normalize=True).fit(discovery)
+        model.write().overwrite().save(args.model_out)
+        fit_info = dict(fit_start=str(args.fit_start), fit_cutoff=str(args.fit_cutoff),
+                        n_fomc=fit_counts["fomc"], n_gdelt=fit_counts["gdelt"],
+                        filter_version=filter_version,
+                        code_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
+        spark.createDataFrame([fit_info]).coalesce(1).write.mode("overwrite").json(
+            f"{args.model_out.rstrip('/')}/fit_info")
+        features = model.transform(docs).withColumn("model_fit_cutoff", F.lit(args.fit_cutoff))
+        if args.tokens_out:
+            (features.select("source", "doc_id", "doc_date", "tokens")
+             .filter(F.size("tokens") > 10).write.mode("overwrite").parquet(args.tokens_out))
+        (features.select("source", "doc_id", "doc_date", "source_domain", "url", "representation_type",
+                         "filter_version", "direct_fed", "broad_macro", "gkg_tone", "model_fit_cutoff", "features")
+         .write.mode("overwrite").parquet(args.tfidf_out))
+        print(f"[tfidf] fit on {fit_counts} through {args.fit_cutoff}")
+    finally:
+        spark.stop()
 
 # Main
 def main(bucket):
@@ -231,6 +341,7 @@ def main(bucket):
     print("[done]")
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        raise SystemExit("Usage: 08_spark_preprocess_tfidf.py <s3-bucket>")
-    main(sys.argv[1])
+    if len(sys.argv) == 2 and not sys.argv[1].startswith("-"):
+        main(sys.argv[1])
+    else:
+        versioned_main()
