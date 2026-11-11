@@ -159,6 +159,11 @@ def alt_window_robustness():
 
 
 if __name__ == "__main__":
+    import sys
+    if len(sys.argv) > 1:
+        from temporal_validation import regression_cli
+        regression_cli()
+        raise SystemExit(0)
     prof = leadlag_profile()
     print("[leadlag] GDELT profile:")
     print(prof[prof.source == "gdelt"].to_string(index=False))

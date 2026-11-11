@@ -208,4 +208,11 @@ def main():
 
 
 if __name__ == "__main__":
+    import sys
+    if len(sys.argv) > 1:
+        canonical = Path(__file__).resolve().parents[3] / "scripts" / "analysis"
+        sys.path.insert(0, str(canonical))
+        from temporal_validation import inference_cli
+        inference_cli()
+        raise SystemExit(0)
     main()

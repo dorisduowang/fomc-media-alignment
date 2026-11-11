@@ -4,6 +4,7 @@ This repository contains the FOMC media alignment research code, the [frozen tem
 
 - [Manuscript and appendix sources](paper/) and [derived results](results/) are available for inspection. The PDF exports are retained as historical snapshots.
 - [Data inputs and reproduction](data_reference/README.md) lists the inputs to supply locally before running the analysis. Create the environment with `conda env create -f environment.yml`. For the ingestion scripts, copy `.env.example` to a local `.env` and configure your own bucket and service credentials.
+- [Temporal validation analysis](scripts/analysis/README.md) documents the versioned panel, holdout-first regression, and time-dependent inference commands.
 - [Extension workflow](MakkaPakka%20update/Jerry_GDELT_2015_2025_workflow.ipynb) documents the pilot and analysis gates. The [ingestion notes](ingestion/README.md) describe how to verify the handoff, and the checked-in metadata describes the planned run. Use the protocol and verify the downstream integration before launching cloud jobs.
 
 ## Course baseline documentation

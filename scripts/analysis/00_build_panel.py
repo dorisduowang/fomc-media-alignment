@@ -228,4 +228,9 @@ def main():
 
 
 if __name__ == "__main__":
+    import sys
+    if len(sys.argv) > 1:
+        from temporal_validation import panel_cli
+        panel_cli()
+        raise SystemExit(0)
     main()
